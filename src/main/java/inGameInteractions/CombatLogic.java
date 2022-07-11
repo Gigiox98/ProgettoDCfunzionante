@@ -154,6 +154,7 @@ public class CombatLogic {
                         break;
                 }
             }
+            // Mancano le abilità speciali del monaco e del ladro
 
         } else {
             return false;

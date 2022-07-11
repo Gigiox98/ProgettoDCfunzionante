@@ -58,6 +58,7 @@ public class RunGame {
 
                             default:
                                 System.out.println("Really?!");
+                                System.out.println("tell me about yourself (Choose a class: 0 Knight, 1 Mage, 2 Thief, 3 Priest)");
                                 break;
                         }
                     }
@@ -88,7 +89,7 @@ public class RunGame {
                             if(dungeon.getFloor().levelBossControl()){
                                 room = dungeon.generateRoomBoos(player,dungeon.getFloor().getLevelFloor());
                                 uplevel=true;
-                            }else {
+                            } else {
                                 room = dungeon.generateRoom(player, dungeon.generateEnemiesList(dungeon.getFloor().getLevelFloor()));
                                 uplevel=false;
                             }
@@ -102,10 +103,9 @@ public class RunGame {
 
                         switch (scanner.next()) {
 
-                            case "1":
-
+                            case "1": {
                                 // Aggiunta e modifica per avere codice più robusto
-                                String sceltaString = null;
+                                String sceltaString;
                                 int scelta;
                                 boolean sceltaChecker = true;
                                 Enemy nemicoScelto = null;
@@ -117,7 +117,7 @@ public class RunGame {
                                         }
                                         sceltaString = scanner.next();
                                         scelta = Integer.parseInt(sceltaString);
-                                        while (scelta > room.getEnemies().size()) {
+                                        while (scelta > room.getEnemies().size() || scelta <= 0) {
                                             System.out.println("You have to choose a valid target of your attack.");
                                             System.out.println("Choose the target of your attack: ");
                                             for (int i = 0; i < room.getEnemies().size(); i++) {
@@ -128,11 +128,11 @@ public class RunGame {
                                         }
                                         sceltaChecker = false;
                                         nemicoScelto = room.getEnemies().get(scelta - 1);
+                                        gameAction.doAttack(room.getCharacter(), nemicoScelto);
                                     } catch (NumberFormatException numberFormatException) {
                                         System.out.println("This is not a number!");
                                     }
                                 }
-                                gameAction.doAttack(room.getCharacter(), nemicoScelto);
 
                                 if (player.getHasStatus()) {
                                     if (gameAction.getDurataStatus() == 0) {
@@ -144,22 +144,18 @@ public class RunGame {
                                     }
                                 }
 
-                                for (Enemy enemy2 : room.getEnemies()
-                                ) {
-                                    if (enemy2.isAlive())
-                                        if (enemy2.getHasStatus()) {
-                                            if (gameAction.getDurataStatusToEnemy() == 0) {
-                                                enemy2.setHasStatus(false);
-                                            } else {
-                                                gameAction.doDotToEnemy(enemy2);
-                                                gameAction.setDurataStatusToEnemy(gameAction.getDurataStatusToEnemy() - 1);
-                                                System.out.println(enemy2.getName() + " received 4 points of damage and now has " + enemy2.getHealt() + "HP");
-                                            }
+                                for (Enemy enemy2 : room.getEnemies()) {
+                                    if (enemy2.isAlive() && enemy2.getHasStatus())
+                                        if (gameAction.getDurataStatusToEnemy() == 0) {
+                                            enemy2.setHasStatus(false);
+                                        } else {
+                                            gameAction.doDotToEnemy(enemy2);
+                                            gameAction.setDurataStatusToEnemy(gameAction.getDurataStatusToEnemy() - 1);
+                                            System.out.println(enemy2.getName() + " received 4 points of damage and now has " + enemy2.getHealt() + "HP");
                                         }
                                 }
 
-                                for (Enemy element : room.getEnemies()
-                                ) {
+                                for (Enemy element : room.getEnemies()) {
                                     if (element != nemicoScelto) {
                                         gameAction.enemyDoAttack(element, room.getCharacter());
                                     }
@@ -167,24 +163,47 @@ public class RunGame {
                                 for (int i = 0; i < room.getEnemies().size(); i++) {
                                     if (!room.getEnemies().get(i).isAlive()) {
                                         room.getEnemies().remove(i);
+                                        i--;
                                     }
                                 }
-                                break;
+                            }
+                            break;
 
-                            case "2":
+                            case "2": {
                                 if (player.getHasUsedSA()) {
                                     System.out.println("You've already used your special ability this combat, it needs to recharge");
                                     break;
                                 }
-                                System.out.println("choose the target of your attack: ");
 
-                                for (int i = 0; i < room.getEnemies().size(); i++) {
-                                    System.out.println(i + 1 + " " + room.getEnemies().get(i).getName() + " " + room.getEnemies().get(i).getHealt() + "HP");
+                                // Aggiunta e modifica per avere codice più robusto
+                                String sceltaString;
+                                int sceltaAbility;
+                                boolean sceltaChecker = true;
+                                Enemy nemicoSceltoAbility = null;
+                                while (sceltaChecker) {
+                                    try {
+                                        System.out.println("choose the target of your attack: ");
+                                        for (int i = 0; i < room.getEnemies().size(); i++) {
+                                            System.out.println(i + 1 + " " + room.getEnemies().get(i).getName() + " " + room.getEnemies().get(i).getHealt() + "HP");
+                                        }
+                                        sceltaString = scanner.next();
+                                        sceltaAbility = Integer.parseInt(sceltaString);
+                                        while (sceltaAbility > room.getEnemies().size() || sceltaAbility <= 0) {
+                                            System.out.println("You have to choose a valid target of your attack.");
+                                            System.out.println("Choose the target of your attack: ");
+                                            for (int i = 0; i < room.getEnemies().size(); i++) {
+                                                System.out.println(i + 1 + " " + room.getEnemies().get(i).getName() + " " + room.getEnemies().get(i).getHealt() + "HP");
+                                            }
+                                            sceltaString = scanner.next();
+                                            sceltaAbility = Integer.parseInt(sceltaString);
+                                        }
+                                        sceltaChecker = false;
+                                        nemicoSceltoAbility = room.getEnemies().get(sceltaAbility - 1);
+                                        gameAction.doSpecialAbility(room.getCharacter(), nemicoSceltoAbility);
+                                    } catch (NumberFormatException numberFormatException) {
+                                        System.out.println("This is not a number!");
+                                    }
                                 }
-
-                                int sceltaAbility = scanner.nextInt();
-                                Enemy nemicoSceltoAbility = room.getEnemies().get(sceltaAbility - 1);
-                                gameAction.doSpecialAbility(room.getCharacter(), nemicoSceltoAbility);
 
                                 if (player.getHasStatus()) {
                                     if (gameAction.getDurataStatus() == 0) {
@@ -196,23 +215,18 @@ public class RunGame {
                                     }
                                 }
 
-                                for (Enemy enemy2 : room.getEnemies()
-                                ) {
-                                    if (enemy2 != null)
-                                        if (enemy2.isAlive())
-                                            if (enemy2.getHasStatus()) {
-                                                if (gameAction.getDurataStatusToEnemy() == 0) {
-                                                    enemy2.setHasStatus(false);
-                                                } else {
-                                                    gameAction.doDotToEnemy(enemy2);
-                                                    gameAction.setDurataStatusToEnemy(gameAction.getDurataStatusToEnemy() - 1);
-                                                    System.out.println(enemy2.getName() + " received 4 points of damage and now has " + enemy2.getHealt() + "HP");
-                                                }
-                                            }
+                                for (Enemy enemy2 : room.getEnemies()) {
+                                    if (enemy2 != null && enemy2.isAlive() && enemy2.getHasStatus())
+                                        if (gameAction.getDurataStatusToEnemy() == 0) {
+                                            enemy2.setHasStatus(false);
+                                        } else {
+                                            gameAction.doDotToEnemy(enemy2);
+                                            gameAction.setDurataStatusToEnemy(gameAction.getDurataStatusToEnemy() - 1);
+                                            System.out.println(enemy2.getName() + " received 4 points of damage and now has " + enemy2.getHealt() + "HP");
+                                        }
                                 }
 
-                                for (Enemy element : room.getEnemies()
-                                ) {
+                                for (Enemy element : room.getEnemies()) {
                                     if (element != nemicoSceltoAbility) {
                                         gameAction.enemyDoAttack(element, room.getCharacter());
                                     }
@@ -221,9 +235,12 @@ public class RunGame {
                                 for (int i = 0; i < room.getEnemies().size(); i++) {
                                     if (!room.getEnemies().get(i).isAlive()) {
                                         room.getEnemies().remove(i);
+                                        i--;
                                     }
                                 }
-                                break;
+
+                            break;
+                            }
 
                             case "0":
                                 runAway = true;
